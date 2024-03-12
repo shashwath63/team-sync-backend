@@ -23,14 +23,30 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/index.ts
-var import_express = __toESM(require("express"));
 var import_cors = __toESM(require("cors"));
+var import_express = __toESM(require("express"));
+var import_http = __toESM(require("http"));
+var import_socket = require("socket.io");
 var app = (0, import_express.default)();
-var PORT = 3e3;
+var httpServer = import_http.default.createServer(app);
+var io = new import_socket.Server(httpServer);
 app.use((0, import_cors.default)());
 app.get("/", (req, res) => {
   res.send("Hello world 123");
 });
-app.listen(PORT, () => {
-  console.log(`App running at port ${PORT}`);
+io.on("connection", (socket) => {
+  console.log("A user connected!");
+  socket.on("chat message", (msg) => {
+    console.log("message:", msg.message);
+    io.emit("chat message", msg);
+  });
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+httpServer.listen(3e3, () => {
+  console.log(`Server listening on port 3000`);
+});
+app.listen(3001, () => {
+  console.log("App listening on port 3000");
 });
