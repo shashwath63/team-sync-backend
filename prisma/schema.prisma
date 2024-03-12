@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,9 +12,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Group {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation to users
+  members UserGroup[]
+
+}
+//Role types
+enum Role {
+  ADMIN
+  MEMBER
+}
+// Many-to-many relation between Users and Groups
+model UserGroup {
+  userId    String
+  groupId   String
+  
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  group  Group  @relation(fields: [groupId], references: [id])
+
+  @@id([userId, groupId])
+}
 model User {
   id        String   @id @default(uuid())
   username  String   @unique
+  userGroups UserGroup[]
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
@@ -23,8 +52,6 @@ model User {
   
   // Define a relation to access the user's authentication tokens
   tokens Token[]
-
-  
 }
 
 // Authentication tokens for users (e.g., JWT tokens)
@@ -35,5 +62,5 @@ model Token {
   createdAt DateTime @default(now())
 
   // Define a relation to the User model
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
