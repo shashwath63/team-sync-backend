@@ -1,8 +1,9 @@
+import bodyParser from "body-parser";
 import cors from "cors";
 import express, { Application, Request, Response } from "express";
 import http from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
-
+import authRoutes from "./routes/auth-route";
 const app: Application = express();
 const httpServer = http.createServer(app);
 const io: SocketIOServer = new SocketIOServer(httpServer);
@@ -11,6 +12,11 @@ interface ChatMessage {
 }
 const PORT = 4000;
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use("/api/auth", authRoutes);
+
 app.get("/", (req, res) => {
   res.send("Hello world 123");
 });
