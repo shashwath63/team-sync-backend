@@ -50,17 +50,5 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  // Define a relation to access the user's authentication tokens
-  tokens Token[]
 }
 
-// Authentication tokens for users (e.g., JWT tokens)
-model Token {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  userId    String
-  createdAt DateTime @default(now())
-
-  // Define a relation to the User model
-  user User @relation(fields: [userId], references: [id])
-}

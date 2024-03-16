@@ -1,2 +1,5 @@
+import { Server } from 'socket.io';
 
-export {  }
+declare const io: Server;
+
+export { io };

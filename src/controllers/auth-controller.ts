@@ -2,13 +2,14 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../model/user'
-import 'dotenv/config'
+import { secretKey } from '../utils'
+import { PrismaClient } from '@prisma/client'
 const saltRounds = 10
-const secretKey = process.env.JWT_SECRET_KEY
 
+const prisma = new PrismaClient()
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body
+    const { username, email, password, defaultGroupName } = req.body
 
     if (!username || !email || !password) {
       return res
@@ -23,6 +24,15 @@ export const signup = async (req: Request, res: Response) => {
         username,
         email,
         password: hashedPassword,
+      },
+    })
+
+    await prisma.group.create({
+      data: {
+        name: defaultGroupName,
+        members: {
+          create: { userId: user.id, role: 'ADMIN' }, // Assuming user who logged in is an admin of the group
+        },
       },
     })
 
