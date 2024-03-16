@@ -19,36 +19,51 @@ model Group {
   updatedAt DateTime @updatedAt
 
   // Relation to users
-  members UserGroup[]
-
+  members  UserGroup[]
+  messages Message[] // Add relation to messages
 }
+
 //Role types
 enum Role {
   ADMIN
   MEMBER
 }
+
 // Many-to-many relation between Users and Groups
 model UserGroup {
-  userId    String
-  groupId   String
-  
+  userId  String
+  groupId String
+
   role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id])
-  group  Group  @relation(fields: [groupId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
 
   @@id([userId, groupId])
 }
+
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
+  id         String      @id @default(uuid())
+  username   String      @unique
   userGroups UserGroup[]
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
+  email      String      @unique
+  password   String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  Message Message[]
 }
 
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  groupId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Define relations to Group and User models
+  group Group @relation(fields: [groupId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
